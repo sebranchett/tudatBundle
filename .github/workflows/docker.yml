@@ -10,7 +10,7 @@ jobs:
     - name: Publish docker image
       uses: docker/build-push-action@v1
       with:
-        repository: sebranchett/tudatBundle
+        repository: sebranchett/tudatbundle
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tag_with_ref: true
