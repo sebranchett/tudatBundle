@@ -27,11 +27,11 @@ jobs:
       matrix:
         name: [
           ubuntu-gcc,
-#         ubuntu-clang,
-#         macOS-gcc,
-#         macOS-clang,
-#         windows-gcc,
-#         windows-clang,
+          ubuntu-clang,
+          macOS-gcc,
+          macOS-clang,
+          windows-gcc,
+          windows-clang,
         ]
 
         include:
@@ -39,41 +39,41 @@ jobs:
           os: ubuntu-latest
           compiler: gcc
 
-#       - name: ubuntu-clang
-#         os: ubuntu-latest
-#         compiler: clang
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
 
-#       - name: macOS-gcc
-#         os: macOS-latest
-#         compiler: gcc
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
 
-#       - name: macOS-clang
-#         os: macOS-latest
-#         compiler: clang
+        - name: macOS-clang
+          os: macOS-latest
+          compiler: clang
 
-#       - name: windows-gcc
-#         os: windows-latest
-#         compiler: gcc
+        - name: windows-gcc
+          os: windows-latest
+          compiler: gcc
 
-#       - name: windows-clang
-#         os: windows-latest
-#         compiler: clang
+        - name: windows-clang
+          os: windows-latest
+          compiler: clang
 
     steps:
     - uses: actions/checkout@v1
 
-#   - name: Install clang on Windows
+    - name: Install clang on Windows
 #   This step leads to the error "C POSIX libraries not found on system.
 #   Please (re)install development environment." from
 #   external/CMake/add_boost.cmake
-#     if: ( contains(matrix.os, 'windows') &&
-#           contains(matrix.compiler, 'clang') )
-#     shell: powershell
-#     run: |
-#       Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-#       scoop install llvm --global
-#       # Scoop modifies the PATH so we make the modified PATH global.
-#       echo "::set-env name=PATH::$env:PATH"
+      if: ( contains(matrix.os, 'windows') &&
+            contains(matrix.compiler, 'clang') )
+      shell: powershell
+      run: |
+        Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+        scoop install llvm --global
+        # Scoop modifies the PATH so we make the modified PATH global.
+        echo "::set-env name=PATH::$env:PATH"
 
     - name: Set Compiler Environment
       shell: bash
@@ -137,30 +137,30 @@ jobs:
       shell: bash
       run: ctest -C $BUILD_TYPE
 
-    - name: Debug
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: |
-        echo 'SEB ls'
-        ls -l
-        echo 'SEB ls Testing'
-        ls -l Testing
-        echo 'SEB pwd'
-        pwd
-
     - name: Upload logs
-      # if: failure()
+      if: failure()
       uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.name }}_LatestTest.log
         path: ${{runner.workspace}}/build/Testing/Temporary/LastTest.log
 
-#   - name: Publish docker image
-#     if: matrix.name == 'ubuntu-gcc' && github.event_name == 'push'
-#     uses: docker/build-push-action@v1
-#     with:
-#       repository: sebranchett/tudatbundle
-#       username: ${{ secrets.DOCKER_USERNAME }}
-#       password: ${{ secrets.DOCKER_PASSWORD }}
-#       tag_with_ref: true
-#       tag_with_sha: true
+  docker:
+  # The previous job, 'build', was for several OS/compiler combinations.
+  # If all combinations succeed, then this job publishes a docker image.
+
+    runs-on: ubuntu-latest
+    steps:
+
+    - uses: actions/checkout@v1
+
+    - name: Publish docker image
+      if: github.event_name == 'push'
+      # Activate only if there has been a push to the tudatBundle repo, i.e.
+      # not a cron job and not a push to the tudat repo
+      uses: docker/build-push-action@v1
+      with:
+        repository: sebranchett/tudatbundle
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_with_ref: true
+        tag_with_sha: true
