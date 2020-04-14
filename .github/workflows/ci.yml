@@ -26,19 +26,19 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          ubuntu-gcc,
+#SEB          ubuntu-gcc,
 #SEB          ubuntu-clang,
 #SEB          macOS-gcc,
           macOS-clang,
           windows-gcc,
-#SEB          windows-clang,
+#         windows-clang,
         ]
 
         include:
-        - name: ubuntu-gcc
-          os: ubuntu-latest
-          compiler: gcc
-
+#SEB        - name: ubuntu-gcc
+#SEB          os: ubuntu-latest
+#SEB          compiler: gcc
+#SEB
 #SEB        - name: ubuntu-clang
 #SEB          os: ubuntu-latest
 #SEB          compiler: clang
@@ -55,28 +55,29 @@ jobs:
           os: windows-latest
           compiler: gcc
 
-#SEB        - name: windows-clang
-#SEB          os: windows-latest
-#SEB          compiler: clang
+#       - name: windows-clang
+#         os: windows-latest
+#         compiler: clang
     env:
-      TUDAT_FLAGS: -DUSEPAGMO=ON -DUSE_NLOPT=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+      TUDAT_FLAGS: -DUSEPAGMO=ON
+      # -DUSE_NLOPT=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
 
     steps:
     - uses: actions/checkout@v1
 
-    - name: Install clang on Windows
+#   - name: Install clang on Windows
 #   This step leads to the error "C POSIX libraries not found on system.
 #   Please (re)install development environment." from
 #   external/CMake/add_boost.cmake
-      if: ( contains(matrix.os, 'windows') &&
-            contains(matrix.compiler, 'clang') )
-      shell: powershell
-      run: |
-        Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-        scoop install llvm --global
-        # Scoop modifies the PATH so we make the modified PATH global.
-        echo "::set-env name=PATH::$env:PATH"
-
+#     if: ( contains(matrix.os, 'windows') &&
+#           contains(matrix.compiler, 'clang') )
+#     shell: powershell
+#     run: |
+#       Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#       scoop install llvm --global
+#       # Scoop modifies the PATH so we make the modified PATH global.
+#       echo "::set-env name=PATH::$env:PATH"
+#
     - name: Set Compiler Environment
       shell: bash
       run: |
@@ -141,22 +142,22 @@ jobs:
         name: ${{ matrix.name }}_LatestTest.log
         path: ${{runner.workspace}}/build/Testing/Temporary/LastTest.log
 
-#SEB  docker:
-#SEB  # The previous job, 'build', was for several OS/compiler combinations.
-#SEB  # If all combinations succeed, then this job publishes a docker image.
-#SEB
-#SEB    needs: build
-#SEB    runs-on: ubuntu-latest
-#SEB    steps:
-#SEB
-#SEB    - name: Publish docker image
-#SEB      if: github.event_name == 'push'
-#SEB      # Activate only if there has been a push to the tudatBundle repo, i.e.
-#SEB      # not a cron job and not a push to the tudat repo
-#SEB      uses: docker/build-push-action@v1
-#SEB      with:
-#SEB        repository: sebranchett/tudatbundle
-#SEB        username: ${{ secrets.DOCKER_USERNAME }}
-#SEB        password: ${{ secrets.DOCKER_PASSWORD }}
-#SEB        tag_with_ref: true
-#SEB        tag_with_sha: true
+  docker:
+  # The previous job, 'build', was for several OS/compiler combinations.
+  # If all combinations succeed, then this job publishes a docker image.
+
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Publish docker image
+      if: github.event_name == 'push'
+      # Activate only if there has been a push to the tudatBundle repo, i.e.
+      # not a cron job and not a push to the tudat repo
+      uses: docker/build-push-action@v1
+      with:
+        repository: sebranchett/tudatbundle
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tag_with_ref: true
+        tag_with_sha: true
