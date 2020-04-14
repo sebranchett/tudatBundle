@@ -138,26 +138,30 @@ jobs:
       run: ctest -C $BUILD_TYPE
 
     - name: Debug
+      working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
+        echo 'SEB ls'
         ls -l
-        ls -l build
-        ls -l tudatBundle
+        echo 'SEB ls Testing'
+        ls -l Testing
+        echo 'SEB pwd'
         pwd
 
     - name: Upload logs
       # if: failure()
+      working-directory: ${{runner.workspace}}/build
       uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.name }}_LatestTest.log
-        path: tudatBundle/Testing/Temporary/LastTest.log
+        path: Testing/Temporary/LastTest.log
 
-    - name: Publish docker image
-      if: matrix.name == 'ubuntu-gcc' && github.event_name == 'push'
-      uses: docker/build-push-action@v1
-      with:
-        repository: sebranchett/tudatbundle
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_with_ref: true
-        tag_with_sha: true
+#   - name: Publish docker image
+#     if: matrix.name == 'ubuntu-gcc' && github.event_name == 'push'
+#     uses: docker/build-push-action@v1
+#     with:
+#       repository: sebranchett/tudatbundle
+#       username: ${{ secrets.DOCKER_USERNAME }}
+#       password: ${{ secrets.DOCKER_PASSWORD }}
+#       tag_with_ref: true
+#       tag_with_sha: true
