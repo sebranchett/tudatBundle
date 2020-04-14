@@ -26,27 +26,27 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          ubuntu-gcc,
-          ubuntu-clang,
-          macOS-gcc,
+#SEB          ubuntu-gcc,
+#SEB          ubuntu-clang,
+#SEB          macOS-gcc,
           macOS-clang,
           windows-gcc,
-          windows-clang,
+#SEB          windows-clang,
         ]
 
         include:
-        - name: ubuntu-gcc
-          os: ubuntu-latest
-          compiler: gcc
-
-        - name: ubuntu-clang
-          os: ubuntu-latest
-          compiler: clang
-
-        - name: macOS-gcc
-          os: macOS-latest
-          compiler: gcc
-
+#SEB        - name: ubuntu-gcc
+#SEB          os: ubuntu-latest
+#SEB          compiler: gcc
+#SEB
+#SEB        - name: ubuntu-clang
+#SEB          os: ubuntu-latest
+#SEB          compiler: clang
+#SEB
+#SEB        - name: macOS-gcc
+#SEB          os: macOS-latest
+#SEB          compiler: gcc
+#SEB
         - name: macOS-clang
           os: macOS-latest
           compiler: clang
@@ -55,9 +55,9 @@ jobs:
           os: windows-latest
           compiler: gcc
 
-        - name: windows-clang
-          os: windows-latest
-          compiler: clang
+#SEB        - name: windows-clang
+#SEB          os: windows-latest
+#SEB          compiler: clang
 
     steps:
     - uses: actions/checkout@v1
@@ -95,10 +95,10 @@ jobs:
       run: |
         cmake -E make_directory ${{runner.workspace}}/build
         cmake -DUSEPAGMO=ON
-        cmake -DUSE_NLOPT=ON
-        cmake -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON
-        cmake -DBUILD_WITH_SOCIS_2019=ON
-        cmake -DBUILD_WITH_FILTERS=ON
+#SEB        cmake -DUSE_NLOPT=ON
+#SEB        cmake -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON
+#SEB        cmake -DBUILD_WITH_SOCIS_2019=ON
+#SEB        cmake -DBUILD_WITH_FILTERS=ON
 
     - name: Configure CMake linux
       if: contains(matrix.os, 'ubuntu')
@@ -144,22 +144,22 @@ jobs:
         name: ${{ matrix.name }}_LatestTest.log
         path: ${{runner.workspace}}/build/Testing/Temporary/LastTest.log
 
-  docker:
-  # The previous job, 'build', was for several OS/compiler combinations.
-  # If all combinations succeed, then this job publishes a docker image.
-
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-
-    - name: Publish docker image
-      if: github.event_name == 'push'
-      # Activate only if there has been a push to the tudatBundle repo, i.e.
-      # not a cron job and not a push to the tudat repo
-      uses: docker/build-push-action@v1
-      with:
-        repository: sebranchett/tudatbundle
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tag_with_ref: true
-        tag_with_sha: true
+#SEB  docker:
+#SEB  # The previous job, 'build', was for several OS/compiler combinations.
+#SEB  # If all combinations succeed, then this job publishes a docker image.
+#SEB
+#SEB    needs: build
+#SEB    runs-on: ubuntu-latest
+#SEB    steps:
+#SEB
+#SEB    - name: Publish docker image
+#SEB      if: github.event_name == 'push'
+#SEB      # Activate only if there has been a push to the tudatBundle repo, i.e.
+#SEB      # not a cron job and not a push to the tudat repo
+#SEB      uses: docker/build-push-action@v1
+#SEB      with:
+#SEB        repository: sebranchett/tudatbundle
+#SEB        username: ${{ secrets.DOCKER_USERNAME }}
+#SEB        password: ${{ secrets.DOCKER_PASSWORD }}
+#SEB        tag_with_ref: true
+#SEB        tag_with_sha: true
