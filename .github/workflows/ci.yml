@@ -26,27 +26,27 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-#SEB          ubuntu-gcc,
-#SEB          ubuntu-clang,
-#SEB          macOS-gcc,
+          ubuntu-gcc,
+          ubuntu-clang,
+          macOS-gcc,
           macOS-clang,
           windows-gcc,
 #         windows-clang,
         ]
 
         include:
-#SEB        - name: ubuntu-gcc
-#SEB          os: ubuntu-latest
-#SEB          compiler: gcc
-#SEB
-#SEB        - name: ubuntu-clang
-#SEB          os: ubuntu-latest
-#SEB          compiler: clang
-#SEB
-#SEB        - name: macOS-gcc
-#SEB          os: macOS-latest
-#SEB          compiler: gcc
-#SEB
+        - name: ubuntu-gcc
+          os: ubuntu-latest
+          compiler: gcc
+
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
+
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
+
         - name: macOS-clang
           os: macOS-latest
           compiler: clang
@@ -59,8 +59,8 @@ jobs:
 #         os: windows-latest
 #         compiler: clang
     env:
-      TUDAT_FLAGS: -DUSEPAGMO=ON
-      # -DUSE_NLOPT=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+      TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+#SEB -DUSEPAGMO=ON -DUSE_NLOPT=ON
 
     steps:
     - uses: actions/checkout@v1
@@ -122,7 +122,7 @@ jobs:
         # See https://github.com/actions/virtual-environments/issues/10
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
-        cmake $TUDAT_FLAGS -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
