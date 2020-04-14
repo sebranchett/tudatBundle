@@ -148,10 +148,9 @@ jobs:
   # The previous job, 'build', was for several OS/compiler combinations.
   # If all combinations succeed, then this job publishes a docker image.
 
+    needs: build
     runs-on: ubuntu-latest
     steps:
-
-    - uses: actions/checkout@v1
 
     - name: Publish docker image
       if: github.event_name == 'push'
