@@ -26,7 +26,7 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-#SEB          ubuntu-gcc,
+          ubuntu-gcc,
 #SEB          ubuntu-clang,
 #SEB          macOS-gcc,
           macOS-clang,
@@ -35,10 +35,10 @@ jobs:
         ]
 
         include:
-#SEB        - name: ubuntu-gcc
-#SEB          os: ubuntu-latest
-#SEB          compiler: gcc
-#SEB
+        - name: ubuntu-gcc
+          os: ubuntu-latest
+          compiler: gcc
+
 #SEB        - name: ubuntu-clang
 #SEB          os: ubuntu-latest
 #SEB          compiler: clang
@@ -58,6 +58,8 @@ jobs:
 #SEB        - name: windows-clang
 #SEB          os: windows-latest
 #SEB          compiler: clang
+    env:
+      TUDAT_FLAGS: -DUSEPAGMO=ON -DUSE_NLOPT=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
 
     steps:
     - uses: actions/checkout@v1
@@ -94,18 +96,13 @@ jobs:
       shell: bash
       run: |
         cmake -E make_directory ${{runner.workspace}}/build
-        cmake -DUSEPAGMO=ON
-#SEB        cmake -DUSE_NLOPT=ON
-#SEB        cmake -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON
-#SEB        cmake -DBUILD_WITH_SOCIS_2019=ON
-#SEB        cmake -DBUILD_WITH_FILTERS=ON
 
     - name: Configure CMake linux
       if: contains(matrix.os, 'ubuntu')
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Configure CMake macos
       if: contains(matrix.os, 'macos')
@@ -114,7 +111,7 @@ jobs:
       run: |
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
-        cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
+        cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
 
     - name: Configure CMake windows
       if: contains(matrix.os, 'windows')
@@ -124,7 +121,7 @@ jobs:
         # See https://github.com/actions/virtual-environments/issues/10
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
-        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake $TUDAT_FLAGS -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
