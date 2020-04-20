@@ -26,27 +26,27 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-#         ubuntu-gcc,
-#         ubuntu-clang,
-#         macOS-gcc,
+          ubuntu-gcc,
+          ubuntu-clang,
+          macOS-gcc,
           macOS-clang,
           windows-gcc,
 #         windows-clang,
         ]
 
         include:
-#       - name: ubuntu-gcc
-#         os: ubuntu-latest
-#         compiler: gcc
-#
-#       - name: ubuntu-clang
-#         os: ubuntu-latest
-#         compiler: clang
-#
-#       - name: macOS-gcc
-#         os: macOS-latest
-#         compiler: gcc
-#
+        - name: ubuntu-gcc
+          os: ubuntu-latest
+          compiler: gcc
+ 
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
+ 
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
+ 
         - name: macOS-clang
           os: macOS-latest
           compiler: clang
@@ -59,8 +59,7 @@ jobs:
 #         os: windows-latest
 #         compiler: clang
     env:
-      TUDAT_FLAGS: -DUSE_NLOPT=ON
-      # TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON -DUSEPAGMO=ON -DUSE_NLOPT=ON
+      TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON -DUSE_PAGMO=ON -DUSE_NLOPT=ON
 
     steps:
     - uses: actions/checkout@v1
@@ -77,7 +76,7 @@ jobs:
 #       scoop install llvm --global
 #       # Scoop modifies the PATH so we make the modified PATH global.
 #       echo "::set-env name=PATH::$env:PATH"
-#
+
     - name: Set Compiler Environment
       shell: bash
       run: |
@@ -111,6 +110,7 @@ jobs:
       run: |
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
+        # SEB disable pre-installed swig
         mv /usr/local/bin/swig /usr/local/bin/old_swig
         cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
 
