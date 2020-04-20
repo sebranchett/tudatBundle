@@ -60,6 +60,7 @@ jobs:
 #         compiler: clang
     env:
       TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON -DUSEPAGMO=ON -DUSE_NLOPT=ON
+      WIN_FLAGS: -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND"
 
     steps:
     - uses: actions/checkout@v1
@@ -123,8 +124,7 @@ jobs:
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
         # cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
-        # cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
-        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DUSEPAGMO=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake $WIN_FLAGS $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
