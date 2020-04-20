@@ -26,27 +26,27 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          ubuntu-gcc,
-          ubuntu-clang,
-          macOS-gcc,
+#         ubuntu-gcc,
+#         ubuntu-clang,
+#         macOS-gcc,
           macOS-clang,
           windows-gcc,
 #         windows-clang,
         ]
 
         include:
-        - name: ubuntu-gcc
-          os: ubuntu-latest
-          compiler: gcc
-
-        - name: ubuntu-clang
-          os: ubuntu-latest
-          compiler: clang
-
-        - name: macOS-gcc
-          os: macOS-latest
-          compiler: gcc
-
+#       - name: ubuntu-gcc
+#         os: ubuntu-latest
+#         compiler: gcc
+#
+#       - name: ubuntu-clang
+#         os: ubuntu-latest
+#         compiler: clang
+#
+#       - name: macOS-gcc
+#         os: macOS-latest
+#         compiler: gcc
+#
         - name: macOS-clang
           os: macOS-latest
           compiler: clang
@@ -59,8 +59,7 @@ jobs:
 #         os: windows-latest
 #         compiler: clang
     env:
-      TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
-#SEB -DUSEPAGMO=ON -DUSE_NLOPT=ON
+      TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON -DUSEPAGMO=ON -DUSE_NLOPT=ON
 
     steps:
     - uses: actions/checkout@v1
@@ -110,6 +109,7 @@ jobs:
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
+        pip install numpy
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
         cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
@@ -122,7 +122,9 @@ jobs:
         # See https://github.com/actions/virtual-environments/issues/10
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
-        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        # cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        # cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" -DUSEPAGMO=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
