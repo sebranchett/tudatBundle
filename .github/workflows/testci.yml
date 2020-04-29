@@ -61,31 +61,30 @@ jobs:
       run: |
         cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
-    - name: Build
+    - name: Build nlopt
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
-        cmake --build . --target all --config $BUILD_TYPE
+        cmake --build . --target nlopt --config $BUILD_TYPE
 
-    - name: list libraries
-      if: failure()
+    - name: Re-configure CMake linux
+      if: contains(matrix.os, 'ubuntu')
       shell: bash
+      working-directory: ${{runner.workspace}}/build
       run: |
-        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
-        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/src/api/../../lib
+        cmake $TUDAT_FLAGS -DUSE_PAGMO=ON -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build PAGMO
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
-        cmake --build . --target all --config $BUILD_TYPE -DUSE_PAGMO=ON -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON
+        cmake --build . --target all --config $BUILD_TYPE
 
     - name: list libraries after PAGMO
       if: failure()
       shell: bash
       run: |
         ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
-        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/src/api/../../lib
 
     - name: Test
       working-directory: ${{runner.workspace}}/build
