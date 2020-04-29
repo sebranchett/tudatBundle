@@ -29,7 +29,7 @@ jobs:
           compiler: gcc
  
     env:
-      TUDAT_FLAGS: -DBUILD_SHARED_LIBS=OFF -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON -DUSE_PAGMO=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+      TUDAT_FLAGS: -DBUILD_SHARED_LIBS=OFF -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON -DUSE_PAGMO=ON -DUSE_NLOPT=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
       # TUDAT_FLAGS: -DUSE_NLOPT=ON -DUSE_PAGMO=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
 
     steps:
@@ -72,6 +72,7 @@ jobs:
       shell: bash
       run: |
         ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
+        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/src/api/../../lib
 
     - name: Test
       working-directory: ${{runner.workspace}}/build
