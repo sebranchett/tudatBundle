@@ -67,6 +67,12 @@ jobs:
       run: |
         cmake --build . --target all --config $BUILD_TYPE
 
+    - name: list libraries
+      if: failure()
+      shell: bash
+      run: |
+        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
+
     - name: Test
       working-directory: ${{runner.workspace}}/build
       shell: bash
