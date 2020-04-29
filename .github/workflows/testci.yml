@@ -74,6 +74,19 @@ jobs:
         ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
         ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/src/api/../../lib
 
+    - name: Build PAGMO
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+        cmake --build . --target all --config $BUILD_TYPE -DUSE_PAGMO=ON
+
+    - name: list libraries after PAGMO
+      if: failure()
+      shell: bash
+      run: |
+        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
+        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/src/api/../../lib
+
     - name: Test
       working-directory: ${{runner.workspace}}/build
       shell: bash
