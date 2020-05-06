@@ -20,29 +20,29 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-#         ubuntu-gcc,
-#         ubuntu-clang,
-#         macOS-gcc,
-#         macOS-clang,
+          ubuntu-gcc,
+          ubuntu-clang,
+          macOS-gcc,
+          macOS-clang,
           windows-gcc,
         ]
 
         include:
-#       - name: ubuntu-gcc
-#         os: ubuntu-latest
-#         compiler: gcc
-#
-#      - name: ubuntu-clang
-#         os: ubuntu-latest
-#         compiler: clang
-#
-#       - name: macOS-gcc
-#         os: macOS-latest
-#         compiler: gcc
-#
-#       - name: macOS-clang
-#         os: macOS-latest
-#         compiler: clang
+        - name: ubuntu-gcc
+          os: ubuntu-latest
+          compiler: gcc
+
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
+
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
+
+        - name: macOS-clang
+          os: macOS-latest
+          compiler: clang
 
         - name: windows-gcc
           os: windows-latest
@@ -76,17 +76,15 @@ jobs:
         if [ "${{ runner.os }}" = "macOS" ]; then
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
-          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX"
+          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DPAGMO_ENABLE_CEC2013=OFF"
         fi
 
         if [ "${{ runner.os }}" = "Windows" ]; then
         # See https://github.com/actions/virtual-environments/issues/10
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
-          args=(-G "MinGW Makefiles")
-          args2=(-DBoost_NO_BOOST_CMAKE=TRUE '-DCMAKE_SH="CMAKE_SH-NOTFOUND"')
+          args=(-DBoost_NO_BOOST_CMAKE=TRUE '-DCMAKE_SH="CMAKE_SH-NOTFOUND"')
           echo "::set-env name=OS_FLAGS::${args[@]}"
-          echo "::set-env name=OS_FLAGS2::${args2[@]}"
         fi
 
     - name: Clone Submodules
@@ -101,8 +99,11 @@ jobs:
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
-        # cmake "$OS_FLAGS" $OS_FLAGS2 $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
-        cmake -G "MinGW Makefiles" $OS_FLAGS2 $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        if [ "${{ runner.os }}" != "Windows" ]; then
+          cmake $OS_FLAGS $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        else
+          cmake -G "MinGW Makefiles" $OS_FLAGS $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        fi
 
     - name: Build nlopt
       working-directory: ${{runner.workspace}}/build
@@ -114,19 +115,17 @@ jobs:
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
-        cmake -G "MinGW Makefiles" $OS_FLAGS2 $TUDAT_FLAGS $PAGMO_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        if [ "${{ runner.os }}" != "Windows" ]; then
+          cmake $OS_FLAGS $TUDAT_FLAGS $PAGMO_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        else
+          cmake -G "MinGW Makefiles" $OS_FLAGS $TUDAT_FLAGS $PAGMO_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        fi
 
     - name: Build PAGMO
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: |
         cmake --build . --target all --config $BUILD_TYPE
-
-    - name: list libraries after PAGMO
-      if: failure()
-      shell: bash
-      run: |
-        ls -l /home/runner/work/tudatBundle/tudatBundle/nlopt/lib
 
     - name: Test
       working-directory: ${{runner.workspace}}/build
