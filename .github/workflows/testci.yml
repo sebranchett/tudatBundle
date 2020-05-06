@@ -20,29 +20,29 @@ jobs:
       fail-fast: false
       matrix:
         name: [
-          ubuntu-gcc,
-          ubuntu-clang,
-          macOS-gcc,
-          macOS-clang,
+#         ubuntu-gcc,
+#         ubuntu-clang,
+#         macOS-gcc,
+#         macOS-clang,
           windows-gcc,
         ]
 
         include:
-        - name: ubuntu-gcc
-          os: ubuntu-latest
-          compiler: gcc
- 
-        - name: ubuntu-clang
-          os: ubuntu-latest
-          compiler: clang
-
-        - name: macOS-gcc
-          os: macOS-latest
-          compiler: gcc
-
-        - name: macOS-clang
-          os: macOS-latest
-          compiler: clang
+#       - name: ubuntu-gcc
+#         os: ubuntu-latest
+#         compiler: gcc
+#
+#      - name: ubuntu-clang
+#         os: ubuntu-latest
+#         compiler: clang
+#
+#       - name: macOS-gcc
+#         os: macOS-latest
+#         compiler: gcc
+#
+#       - name: macOS-clang
+#         os: macOS-latest
+#         compiler: clang
 
         - name: windows-gcc
           os: windows-latest
@@ -83,7 +83,7 @@ jobs:
         # See https://github.com/actions/virtual-environments/issues/10
         # and https://stackoverflow.com/questions/3016448/
         #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
-          echo '::set-env name=OS_FLAGS::-G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND"'
+          echo '::set-env name=OS_FLAGS::-G "MinGW\ Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND"'
         fi
 
     - name: Clone Submodules
