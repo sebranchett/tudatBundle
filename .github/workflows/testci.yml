@@ -21,6 +21,10 @@ jobs:
       matrix:
         name: [
           ubuntu-gcc,
+          ubuntu-clang,
+          macOS-gcc,
+          macOS-clang,
+          windows-gcc,
         ]
 
         include:
@@ -28,9 +32,25 @@ jobs:
           os: ubuntu-latest
           compiler: gcc
  
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
+
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
+
+        - name: macOS-clang
+          os: macOS-latest
+          compiler: clang
+
+        - name: windows-gcc
+          os: windows-latest
+          compiler: gcc
+
     env:
       TUDAT_FLAGS: -DUSE_NLOPT=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
-      # TUDAT_FLAGS: -DUSE_NLOPT=ON -DUSE_PAGMO=ON -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+      PAGMO_FLAGS: -DUSE_PAGMO=ON -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON
 
     steps:
     - uses: actions/checkout@v1
@@ -46,6 +66,26 @@ jobs:
           echo "::set-env name=CXX::g++"
         fi
 
+    - name: Set OS dependent flags
+      shell: bash
+      run: |
+        if [ "${{ runner.os }}" = "Linux" ]; then
+          echo "::set-env name=OS_FLAGS::"
+        fi
+
+        if [ "${{ runner.os }}" = "macOS" ]; then
+        # see https://stackoverflow.com/questions/24380456/
+        # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
+          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX"
+        fi
+
+        if [ "${{ runner.os }}" = "Windows" ]; then
+        # See https://github.com/actions/virtual-environments/issues/10
+        # and https://stackoverflow.com/questions/3016448/
+        #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
+          echo '::set-env name=OS_FLAGS::-G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND"'
+        fi
+
     - name: Clone Submodules
       shell: bash
       run: git submodule update --init --recursive
@@ -54,12 +94,11 @@ jobs:
       run: |
         cmake -E make_directory ${{runner.workspace}}/build
 
-    - name: Configure CMake linux
-      if: contains(matrix.os, 'ubuntu')
+    - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
-        cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake $OS_FLAGS $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build nlopt
       working-directory: ${{runner.workspace}}/build
@@ -67,12 +106,11 @@ jobs:
       run: |
         cmake --build . --target nlopt --config $BUILD_TYPE
 
-    - name: Re-configure CMake linux
-      if: contains(matrix.os, 'ubuntu')
+    - name: Re-configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
       run: |
-        cmake $TUDAT_FLAGS -DUSE_PAGMO=ON -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+        cmake $OS_FLAGS $TUDAT_FLAGS $PAGMO_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
 
     - name: Build PAGMO
       working-directory: ${{runner.workspace}}/build
