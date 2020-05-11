@@ -89,14 +89,15 @@ jobs:
 
     - name: Clone Submodules
       shell: bash
-      run: git submodule update --init --recursive
-
-    - name: Create Build Environment
       run: |
-        if [ "${{ runner.os }}" = "Windows" ]; then
+        git submodule update --init --recursive
+        if [ "${{ runner.os }}" = "macOS" ]; then
         # SEB quick fix to disable CEC2013 and CEC2014
           cp -f config.hpp.in pagmo2
         fi
+
+    - name: Create Build Environment
+      run: |
         cmake -E make_directory ${{runner.workspace}}/build
 
     - name: Configure CMake
