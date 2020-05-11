@@ -76,7 +76,7 @@ jobs:
         if [ "${{ runner.os }}" = "macOS" ]; then
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
-          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DPAGMO_ENABLE_CEC2013=OFF"
+          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX"
         fi
 
         if [ "${{ runner.os }}" = "Windows" ]; then
