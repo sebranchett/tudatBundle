@@ -49,7 +49,6 @@ jobs:
         - name: windows-gcc
           os: windows-latest
           compiler: gcc
-          version: "8"
 
     env:
       TUDAT_FLAGS: -DUSE_NLOPT=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON
@@ -64,6 +63,9 @@ jobs:
         if [ "${{ matrix.compiler }}" = "clang" ]; then
           echo "::set-env name=CC::clang"
           echo "::set-env name=CXX::clang++"
+        elif [ "${{ runner.os }}" = "Windows" ]; then
+          echo "::set-env name=CC::gcc"
+          echo "::set-env name=CXX::g++"
         else
           echo "::set-env name=CC::gcc-${{ matrix.version }}"
           echo "::set-env name=CXX::g++-${{ matrix.version }}"
