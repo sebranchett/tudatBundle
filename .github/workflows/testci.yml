@@ -43,8 +43,8 @@ jobs:
           echo "::set-env name=CC::clang"
           echo "::set-env name=CXX::clang++"
         else
-          echo "::set-env name=CC::gcc"
-          echo "::set-env name=CXX::g++"
+          echo "::set-env name=CC::gcc-${{ matrix.version }}"
+          echo "::set-env name=CXX::g++-${{ matrix.version }}"
         fi
         # list pre-defined compiler macros - is __APPLE__ defined?
         if [ "${{ matrix.compiler }}" = "gcc" ]; then
@@ -58,7 +58,6 @@ jobs:
       run: |
         if [ "${{ runner.os }}" = "Linux" ]; then
           echo "::set-env name=OS_FLAGS::"
-          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8"
         fi
 
         if [ "${{ runner.os }}" = "macOS" ]; then
