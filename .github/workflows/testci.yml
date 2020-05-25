@@ -21,11 +21,33 @@ jobs:
       matrix:
         name: [
           ubuntu-gcc,
+          ubuntu-clang,
+          macOS-gcc,
+          macOS-clang,
+          windows-gcc,
         ]
 
         include:
         - name: ubuntu-gcc
           os: ubuntu-latest
+          compiler: gcc
+          version: "8"
+
+        - name: ubuntu-clang
+          os: ubuntu-latest
+          compiler: clang
+
+        - name: macOS-gcc
+          os: macOS-latest
+          compiler: gcc
+          version: "8"
+
+        - name: macOS-clang
+          os: macOS-latest
+          compiler: clang
+
+        - name: windows-gcc
+          os: windows-latest
           compiler: gcc
           version: "8"
 
@@ -45,12 +67,6 @@ jobs:
         else
           echo "::set-env name=CC::gcc-${{ matrix.version }}"
           echo "::set-env name=CXX::g++-${{ matrix.version }}"
-        fi
-        # list pre-defined compiler macros - is __APPLE__ defined?
-        if [ "${{ matrix.compiler }}" = "gcc" ]; then
-          touch dummy.hxx
-          cpp -dM ./dummy.hxx
-          rm dummy.hxx
         fi
 
     - name: Set OS dependent flags
