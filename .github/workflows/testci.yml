@@ -96,6 +96,8 @@ jobs:
       shell: bash
       run: |
         git submodule update --init --recursive
+        # SEB quick fix to disable CEC2013 Application Example tests
+        cp -f PaGMO_CMake.txt tudatExampleApplications/libraryExamples/PaGMOEx/CMakeLists.txt
 
     - name: Create Build Environment
       run: |
