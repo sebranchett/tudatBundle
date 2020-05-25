@@ -49,7 +49,7 @@ jobs:
           compiler: gcc
 
     env:
-      TUDAT_FLAGS: -DUSE_NLOPT=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON
+      TUDAT_FLAGS: -DUSE_NLOPT=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON
       PAGMO_FLAGS: -DUSE_PAGMO=ON -DPAGMO_WITH_NLOPT=ON -DPAGMO_AS_STATIC_LIB=ON
 
     steps:
@@ -69,14 +69,16 @@ jobs:
     - name: Set OS dependent flags
       shell: bash
       run: |
+      # -DBUILD_WITH_FILTERS=ON does not always work for Windows, so is
+      # added to Linux and macOS here
         if [ "${{ runner.os }}" = "Linux" ]; then
-          echo "::set-env name=OS_FLAGS::"
+          echo "::set-env name=OS_FLAGS::-DBUILD_WITH_FILTERS=ON"
         fi
 
         if [ "${{ runner.os }}" = "macOS" ]; then
         # see https://stackoverflow.com/questions/24380456/
         # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
-          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX"
+          echo "::set-env name=OS_FLAGS::-DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_WITH_FILTERS=ON"
         fi
 
         if [ "${{ runner.os }}" = "Windows" ]; then
@@ -91,10 +93,6 @@ jobs:
       shell: bash
       run: |
         git submodule update --init --recursive
-        if [ "${{ runner.os }}" = "macOS" ]; then
-        # SEB quick fix to disable CEC2013 and CEC2014
-          cp -f config.hpp.in pagmo2
-        fi
 
     - name: Create Build Environment
       run: |
