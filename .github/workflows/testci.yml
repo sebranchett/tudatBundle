@@ -140,7 +140,8 @@ jobs:
     - name: Test
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest -C $BUILD_TYPE --output-on-failure
+      run: |
+        ctest -C $BUILD_TYPE --output-on-failure -R de1220
 
     - name: Upload logs
       if: failure()
