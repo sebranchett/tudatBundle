@@ -74,9 +74,10 @@ jobs:
             contains(matrix.compiler, 'clang') )
       shell: powershell
       run: |
-        Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-        scoop install llvm --global
+        # Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+        # scoop install llvm --global
         # Scoop modifies the PATH so we make the modified PATH global.
+        choco install llvm
         echo "::set-env name=PATH::$env:PATH"
 
     - name: Set Compiler Environment
