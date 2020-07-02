@@ -64,20 +64,20 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-#   - name: Install clang on Windows
+    - name: Install clang on Windows
 #   This issue was reported on 2020-06-30:
 #   https://github.com/actions/virtual-environments/issues/1152
 #   This step leads to the error "C POSIX libraries not found on system.
 #   Please (re)install development environment." from
 #   external/CMake/add_boost.cmake
-#     if: ( contains(matrix.os, 'windows') &&
-#           contains(matrix.compiler, 'clang') )
-#     shell: powershell
-#     run: |
-#       Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-#       scoop install llvm --global
+      if: ( contains(matrix.os, 'windows') &&
+            contains(matrix.compiler, 'clang') )
+      shell: powershell
+      run: |
+        Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+        scoop install llvm --global
 #       # Scoop modifies the PATH so we make the modified PATH global.
-#       echo "::set-env name=PATH::$env:PATH"
+        echo "::set-env name=PATH::$env:PATH"
 
     - name: Set Compiler Environment
       shell: bash
