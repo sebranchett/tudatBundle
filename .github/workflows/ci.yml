@@ -77,7 +77,7 @@ jobs:
         # Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
         # scoop install llvm --global
         # Scoop modifies the PATH so we make the modified PATH global.
-        choco install mingw
+        choco install msys2
         choco install llvm
         echo "::set-env name=PATH::$env:PATH;C:\Program Files\LLVM\bin"
 
