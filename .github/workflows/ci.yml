@@ -1,0 +1,163 @@
+name: tudatBundleCI
+# adapted from:
+# https://github.com/jherico/starter-workflows/blob/master/ci/cmake.yml
+# and
+# https://github.com/onqtam/doctest/blob/master/.github/workflows/main.yml
+
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+#SEB  schedule:
+    # every Monday at 04:00
+#SEB    - cron: '0 4 * * 1'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [
+#SEB          ubuntu-gcc,
+#SEB          ubuntu-clang,
+#SEB          macOS-gcc,
+#SEB          macOS-clang,
+#SEB          windows-gcc,
+          windows-clang,
+        ]
+
+        include:
+#SEB        - name: ubuntu-gcc
+#SEB          os: ubuntu-latest
+#SEB          compiler: gcc
+#SEB 
+#SEB      - name: ubuntu-clang
+#SEB        os: ubuntu-latest
+#SEB        compiler: clang
+#SEB 
+#SEB      - name: macOS-gcc
+#SEB        os: macOS-latest
+#SEB        compiler: gcc
+#SEB 
+#SEB      - name: macOS-clang
+#SEB        os: macOS-latest
+#SEB        compiler: clang
+#SEB
+#SEB      - name: windows-gcc
+#SEB        os: windows-latest
+#SEB        compiler: gcc
+#SEB
+        - name: windows-clang
+          os: windows-latest
+          compiler: clang
+    env:
+      TUDAT_FLAGS: -DBUILD_WITH_EXTENDED_PRECISION_PROPAGATION_TOOLS=ON -DBUILD_WITH_SOCIS_2019=ON -DBUILD_WITH_FILTERS=ON -DUSE_PAGMO=ON -DUSE_NLOPT=ON
+
+    steps:
+    - uses: actions/checkout@v1
+
+#   - name: Install clang on Windows
+#   This step leads to the error "C POSIX libraries not found on system.
+#   Please (re)install development environment." from
+#   external/CMake/add_boost.cmake
+#     if: ( contains(matrix.os, 'windows') &&
+#           contains(matrix.compiler, 'clang') )
+#     shell: powershell
+#     run: |
+#       Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
+#       scoop install llvm --global
+#       # Scoop modifies the PATH so we make the modified PATH global.
+#       echo "::set-env name=PATH::$env:PATH"
+
+    - name: Set Compiler Environment
+      shell: bash
+      run: |
+        if [ "${{ matrix.compiler }}" = "clang" ]; then
+          echo "::set-env name=CC::clang"
+          echo "::set-env name=CXX::clang++"
+        else
+          echo "::set-env name=CC::gcc"
+          echo "::set-env name=CXX::g++"
+        fi
+
+    - name: Clone Submodules
+      shell: bash
+      run: git submodule update --init --recursive
+
+    - name: Create Build Environment
+      run: |
+        cmake -E make_directory ${{runner.workspace}}/build
+
+    - name: Configure CMake linux
+      if: contains(matrix.os, 'ubuntu')
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+
+    - name: Configure CMake macos
+      if: contains(matrix.os, 'macos')
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        # see https://stackoverflow.com/questions/24380456/
+        # how-can-i-make-cmake-use-gcc-instead-of-clang-on-mac-os-x/24380618
+        # SEB disable pre-installed swig
+        mv /usr/local/bin/swig /usr/local/bin/old_swig
+        cmake $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX
+
+    - name: Configure CMake windows
+      if: contains(matrix.os, 'windows')
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        # See https://github.com/actions/virtual-environments/issues/10
+        # and https://stackoverflow.com/questions/3016448/
+        #     how-can-i-get-cmake-to-find-my-alternative-boost-installation
+        cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle
+
+    - name: Build
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: |
+        cmake --build . --target all --config $BUILD_TYPE
+
+    - name: Test
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest -C $BUILD_TYPE
+
+    - name: Upload logs
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.name }}_LatestTest.log
+        path: ${{runner.workspace}}/build/Testing/Temporary/LastTest.log
+
+#SEB  docker:
+  # The previous job, 'build', was for several OS/compiler combinations.
+  # If all combinations succeed, then this job publishes a docker image.
+
+#SEB    needs: build
+#SEB    runs-on: ubuntu-latest
+#SEB    steps:
+
+#SEB    - name: Publish docker image
+#SEB      if: github.event_name == 'push'
+      # Activate only if there has been a push to the tudatBundle repo, i.e.
+      # not a cron job and not a push to the tudat repo
+#SEB      uses: docker/build-push-action@v1
+#SEB      with:
+#SEB        repository: sebranchett/tudatbundle
+#SEB       username: ${{ secrets.DOCKER_USERNAME }}
+#SEB       password: ${{ secrets.DOCKER_PASSWORD }}
+#SEB        tag_with_ref: true
+#SEB        tag_with_sha: true
