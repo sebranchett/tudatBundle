@@ -81,6 +81,7 @@ jobs:
         echo "::set-env name=PATH::$env:PATH"
         echo $env:PATH
         echo "::set-env name=PATH::$env:PATH;C:\Program Files\LLVM\bin"
+        dir "C:\Program Files\LLVM\bin"
 
     - name: Set Compiler Environment
       shell: bash
@@ -132,7 +133,7 @@ jobs:
         echo 'ls mingw64 bin'
         ls /mingw64/bin
         echo 'ls LLVM bin'
-        ls /c/ProgramData/LLVM/bin
+        ls '/c/Program Files/LLVM/bin'
         cmake -G "MinGW Makefiles" -DBoost_NO_BOOST_CMAKE=TRUE -DCMAKE_SH="CMAKE_SH-NOTFOUND" $TUDAT_FLAGS -DCMAKE_BUILD_TYPE=$BUILD_TYPE -B . -S ../tudatBundle -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DGCC_INSTALL_PREFIX=/mingw64/bin
 
     - name: Build
